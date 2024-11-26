@@ -10,8 +10,8 @@
 <h1>Create New User</h1>
 
 <form th:action="@{/admin/edit}" th:object="${user}" method="post">
-    <label for="username">Username:</label>
-    <input type="text" id="username" th:field="*{username}" required /><br>
+    <label for="email">Username:</label>
+    <input type="text" id="email" th:field="*{email}" required /><br>
 
     <label for="name">Name:</label>
     <input type="text" id="name" th:field="*{name}" required /><br>
@@ -36,6 +36,8 @@
 
 <a href="/admin">Back to Admin Page</a>
 <br><br>
-<a href="/logout">Logout</a>
+<form th:action="@{/logout}" method="post">
+    <button type="submit" class="btn btn-outline-light">Logout</button>
+</form>
 </body>
 </html>

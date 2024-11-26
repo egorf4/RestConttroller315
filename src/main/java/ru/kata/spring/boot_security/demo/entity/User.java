@@ -21,7 +21,7 @@ public class User implements UserDetails {
 
     private int age;
 
-    private String username;
+    private String email;
 
     private String password;
 
@@ -34,6 +34,11 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 
     @Override

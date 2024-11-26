@@ -51,18 +51,19 @@ public class UserService implements UserDetailsService {
        userRepository.deleteById(id);
     }
 
-    public User findByUsername(String username) {
-       return userRepository.findByUsername(username);
+    public User findByUsername(String email) {
+       return userRepository.findByEmail(email);
     }
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-       User user = userRepository.findByUsername(username);
-        System.out.println("Found user: " + user);
-       if(user == null) {
-           throw new UsernameNotFoundException("User not found   " + username);
-       }
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        System.out.println("Authenticating email: " + email);
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found: " + email);
+        }
+        System.out.println("User found: " + user);
        return new org.springframework.security.core.userdetails.User(user.getUsername(),
                user.getPassword(),mapRolesToAuthorities(user.getRoles()));
     }
@@ -70,5 +71,9 @@ public class UserService implements UserDetailsService {
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
        return roles.stream().map(r -> new SimpleGrantedAuthority
                (r.getName())).collect(Collectors.toList());
+    }
+
+    public String encodePassword(String password) {
+    return new BCryptPasswordEncoder().encode(password);
     }
 }

@@ -1,18 +1,18 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.entity.Role;
 import ru.kata.spring.boot_security.demo.entity.User;
 import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
-import java.util.Collection;
+import java.security.Principal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,70 +29,70 @@ public class AdminController {
         this.roleRepository = roleRepository;
     }
 
+    // Главная страница для админа
     @GetMapping
-    public String adminPage(Model model) {
-        model.addAttribute("users", userService.findAll());
+    public String adminPage(Principal principal, Model model) {
+        User currentUser = userService.findByUsername(principal.getName());
+        List<User> users = userService.findAll();
+        users.forEach(user -> System.out.println(user));
+        List<String> roleNames = currentUser.getRoles().stream()
+                .map(role -> role.getName().replace("ROLE_", ""))
+                .collect(Collectors.toList());
+
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("roleNames", roleNames);
+        model.addAttribute("users", userService.findAll()); // Список всех пользователей
+        model.addAttribute("roles", roleRepository.findAll()); // Список всех ролей
+        model.addAttribute("user", new User()); // Пустой объект для формы
         return "admin";
     }
 
-    @GetMapping("/new")
-    public String newUserForm(Model model) {
-        model.addAttribute("user", new User());
-        model.addAttribute("roles", roleRepository.findAll());
-        return "new-user";
-    }
 
-    @PostMapping
-    public String createUser(@ModelAttribute("user") User user, @RequestParam("roles") List<Long> roleIds, BindingResult bindingResult) {
-        Collection<Role> roles = roleRepository.findAllById(roleIds);
-        user.setRoles(roles);
-        if (bindingResult.hasErrors()) {
-            return "new-user";
+
+
+    // Создание нового пользователя
+    @PostMapping("/new")
+    public String createUser(@ModelAttribute("newUser") User user, @RequestParam("roles") Set<Long> roleIds) {
+        Set<Role> roles = new HashSet<>();
+        for (Long roleId : roleIds) {
+            Optional<Role> role = roleRepository.findById(roleId);
+            role.ifPresent(roles::add);
         }
+        user.setRoles(roles);
         userService.save(user);
         return "redirect:/admin";
     }
 
-    @GetMapping("/edit/{id}")
-    public String editUserForm(@PathVariable Long id, Model model) {
-        User user = userService.findById(id);
-        System.out.println("USER: " + user);
-        if (user == null) {
-            throw new RuntimeException("User not found with id: " + id);
-        }
-        List<Role> allRoles = roleRepository.findAll();
-        System.out.println("ROLES: " + allRoles);
-        model.addAttribute("user", user);
-        model.addAttribute("allRoles", allRoles);
-        return "edit-user";
-    }
-
-
+    // Редактирование пользователя
     @PostMapping("/edit")
-    public String updateUser(@ModelAttribute("user") User user) {
-
-        System.out.println("userR ID: " + user.getId());
-        System.out.println("Role id" + user.getRoles());
-        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-            user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
-        } else {
-            User existingUser = userService.findById(user.getId());
-            user.setPassword(existingUser.getPassword());
+    public String editUser(@ModelAttribute("user") User user, @RequestParam("roles") Set<Long> roleIds) {
+        // Установить роли пользователя
+        Set<Role> roles = new HashSet<>();
+        for (Long roleId : roleIds) {
+            roleRepository.findById(roleId).ifPresent(roles::add);
         }
-
-        Set<Role> roles = user.getRoles().stream()
-                .map(role -> roleRepository.findByName(role.getName())) // Найти роли в БД
-                .collect(Collectors.toSet());
         user.setRoles(roles);
 
-        userService.update(user);
+        // Если пароль пустой, оставить старый
+        User existingUser = userService.findById(user.getId());
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            user.setPassword(existingUser.getPassword());
+        } else {
+            // Хэшировать новый пароль, если он был введен
+            user.setPassword(userService.encodePassword(user.getPassword()));
+        }
 
+        userService.update(user);
         return "redirect:/admin";
     }
 
 
+
+
+
+    // Удаление пользователя
     @PostMapping("/delete/{id}")
-    public String deleteUser(@PathVariable Long id) {
+    public String deleteUser(@PathVariable("id") Long id) {
         userService.deleteById(id);
         return "redirect:/admin";
     }

@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import ru.kata.spring.boot_security.demo.entity.User;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
+import java.security.Principal;
+
 @Controller
 @RequestMapping("/user")
-public class UserController {
+public class  UserController {
 
     private final UserService userService;
 
@@ -21,10 +23,14 @@ public class UserController {
     }
 
     @GetMapping
-    public String userPage(@AuthenticationPrincipal org.springframework.security.core.userdetails.User securityUser, Model model) {
-        User user = userService.findByUsername(securityUser.getUsername());
-        model.addAttribute("user", user);
+    public String userPage(Principal principal, Model model) {
+        User currentUser = userService.findByUsername(principal.getName());
+        if (currentUser == null) {
+            throw new RuntimeException("Current user is null");
+        }
+        model.addAttribute("currentUser", currentUser);
         return "user-page";
     }
+
 
 }
