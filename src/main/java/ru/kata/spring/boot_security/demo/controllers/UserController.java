@@ -15,22 +15,17 @@ import java.security.Principal;
 @RequestMapping("/user")
 public class  UserController {
 
-    private final UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
-    @GetMapping
-    public String userPage(Principal principal, Model model) {
-        User currentUser = userService.findByUsername(principal.getName());
-        if (currentUser == null) {
-            throw new RuntimeException("Current user is null");
+//    @GetMapping
+//    public String userPage(Principal principal, Model model) {
+//        User currentUser = userService.findByUsername(principal.getName());
+//        if (currentUser == null) {
+//            throw new RuntimeException("Current user is null");
+//        }
+//            model.addAttribute("currentUser", currentUser);
+//        return "user-page";
+//    }
+     @GetMapping
+        public String userPage() {
+            return "user-page";
         }
-        model.addAttribute("currentUser", currentUser);
-        return "user-page";
-    }
-
-
 }

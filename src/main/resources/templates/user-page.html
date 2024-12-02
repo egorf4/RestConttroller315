@@ -2,7 +2,6 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Page</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -10,9 +9,9 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <span class="navbar-text text-light me-3">
-            <strong th:text="${currentUser.email}">user@mail.ru</strong>
+            <strong id="currentUserEmail"></strong>
             with roles:
-            <span th:each="role : ${currentUser.roles}" th:text="${role.name.replace('ROLE_', '')}" class="badge bg-secondary me-1">USER</span>
+            <span id="currentUserRoles" class="badge bg-secondary me-1"></span>
         </span>
         <a href="/logout" class="btn btn-outline-light">Logout</a>
     </div>
@@ -20,14 +19,12 @@
 
 <div class="container mt-4">
     <div class="row">
-        <!-- Sidebar -->
         <div class="col-md-3">
             <div class="nav flex-column nav-pills">
                 <a class="nav-link active" href="/user">User</a>
             </div>
         </div>
 
-        <!-- Main Content -->
         <div class="col-md-9">
             <h1 class="mb-4">User Information Page</h1>
             <div class="card">
@@ -35,7 +32,7 @@
                     <h4>About User</h4>
                 </div>
                 <div class="card-body">
-                    <table class="table table-striped">
+                    <table class="table table-striped" id="userInfoTable">
                         <thead>
                         <tr>
                             <th>ID</th>
@@ -47,16 +44,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td th:text="${currentUser.id}"></td>
-                            <td th:text="${currentUser.name}"></td>
-                            <td th:text="${currentUser.surname}"></td>
-                            <td th:text="${currentUser.age}"></td>
-                            <td th:text="${currentUser.email}"></td>
-                            <td>
-                                <span th:each="role : ${currentUser.roles}" th:text="${role.name.replace('ROLE_', '')}" class="badge bg-secondary me-1"></span>
-                            </td>
-                        </tr>
+                        <!-- User info will be dynamically inserted here -->
                         </tbody>
                     </table>
                 </div>
@@ -66,5 +54,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/user.js"></script>
 </body>
 </html>

@@ -35,16 +35,34 @@ public class UserService implements UserDetailsService {
        return userRepository.findAll();
     }
 
-    public void save(User user) {
-        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
-        userRepository.save(user);
+    public User save(User user) {
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        }
+        return userRepository.save(user);
     }
+
 
 
     @Transactional
-    public void update(User user) {
-        userRepository.save(user);
+    public User update(User user) {
+        User existingUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        existingUser.setName(user.getName());
+        existingUser.setSurname(user.getSurname());
+        existingUser.setAge(user.getAge());
+        existingUser.setEmail(user.getEmail());
+
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            existingUser.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        }
+
+        existingUser.setRoles(user.getRoles());
+
+        return userRepository.save(existingUser);
     }
+
 
     @Transactional
     public void deleteById(Long id) {
