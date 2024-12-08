@@ -5,13 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1030;
+        }
+
+        .main-content {
+            margin-top: 60px;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 250px;
+            height: calc(100vh - 60px);
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+    </style>
+
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container-fluid">
         <span class="navbar-text text-light me-3">
             <strong id="currentUserEmail"></strong>
-            <span id="currentUserRoles" class="badge bg-secondary me-1"></span>
+            <span id="currentUserRoles"></span>
         </span>
         <form th:action="@{/logout}" method="post">
             <button type="submit" class="btn btn-outline-light">Logout</button>
@@ -19,96 +48,121 @@
     </div>
 </nav>
 
-<div class="container">
-    <div class="row">
+<div class="sidebar">
+    <div class="nav flex-column nav-pills mb-3">
+        <a class="nav-link active" href="#" id="adminLink">Admin</a>
+        <a class="nav-link" href="#" id="userLink">User</a>
+    </div>
+</div>
 
-        <div class="col-md-3">
-            <div class="nav flex-column nav-pills mb-3">
-                <a class="nav-link active" href="/admin">Admin</a>
-                <a class="nav-link" href="/user">User</a>
+<div class="main-content">
+
+    <!-- Секция Admin с вкладками Users Table и New User -->
+    <div id="adminSection">
+        <h1 class="mb-4">Admin Panel</h1>
+        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users"
+                        type="button" role="tab">Users Table
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="new-user-tab" data-bs-toggle="tab" data-bs-target="#new-user"
+                        type="button" role="tab">New User
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="adminTabsContent">
+            <!-- Users Table -->
+            <div class="tab-pane fade show active" id="users" role="tabpanel">
+                <h3>All Users</h3>
+                <table class="table table-striped" id="usersTable">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Age</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Users will be dynamically inserted here -->
+                    </tbody>
+                </table>
             </div>
-        </div>
 
-        <div class="col-md-9">
-            <h1 class="mb-4">Admin Panel</h1>
-
-            <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
-                <li class="nav-item">
-                    <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users"
-                            type="button" role="tab">Users Table
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" id="new-user-tab" data-bs-toggle="tab" data-bs-target="#new-user"
-                            type="button" role="tab">New User
-                    </button>
-                </li>
-            </ul>
-
-            <div class="tab-content" id="adminTabsContent">
-                <!-- Users Table -->
-                <div class="tab-pane fade show active" id="users" role="tabpanel">
-                    <h3>All Users</h3>
-                    <table class="table table-striped" id="usersTable">
-                        <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Age</th>
-                            <th>Email</th>
-                            <th>Roles</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <!-- Users will be dynamically inserted here -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- New User Form -->
-                <div class="tab-pane fade" id="new-user" role="tabpanel">
-                    <h3 class="text-center mb-4">Add New User</h3>
-                    <div class="d-flex justify-content-center">
-                        <form id="newUserForm" class="w-50">
-                            <div class="mb-3">
-                                <label for="name" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="name" name="name" placeholder="First Name"
-                                       required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="surname" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="surname" name="surname"
-                                       placeholder="Last Name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="age" class="form-label">Age</label>
-                                <input type="number" class="form-control" id="age" name="age" placeholder="Age" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="emailNew" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="emailNew" name="email" placeholder="Email"
-                                       required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="passwordNew" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="passwordNew" name="password"
-                                       placeholder="Password" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="rolesNew" class="form-label">Roles</label>
-                                <select id="rolesNew" name="roles" class="form-select" multiple required>
-                                    <!-- Roles will be dynamically inserted here -->
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-success w-100">Add User</button>
-                        </form>
-                    </div>
+            <!-- New User Form -->
+            <div class="tab-pane fade" id="new-user" role="tabpanel">
+                <h3 class="text-center mb-4">Add New User</h3>
+                <div class="d-flex justify-content-center">
+                    <form id="newUserForm" class="w-50">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="First Name"
+                                   required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="surname" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="surname" name="surname"
+                                   placeholder="Last Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="age" class="form-label">Age</label>
+                            <input type="number" class="form-control" id="age" name="age" placeholder="Age" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="emailNew" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="emailNew" name="email" placeholder="Email"
+                                   required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="passwordNew" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="passwordNew" name="password"
+                                   placeholder="Password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="rolesNew" class="form-label">Roles</label>
+                            <select id="rolesNew" name="roles" class="form-select" multiple required>
+                                <!-- Roles will be dynamically inserted here -->
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Add User</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <div id="userSection" style="display: none;">
+        <h1 class="mb-4">User Information Page</h1>
+        <div class="card">
+            <div class="card-header">
+                <h4>About User</h4>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped" id="adminInfoTable">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Age</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Admin info will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <!-- Modals will be dynamically inserted here -->

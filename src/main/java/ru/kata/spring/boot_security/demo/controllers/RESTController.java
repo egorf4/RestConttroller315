@@ -3,11 +3,9 @@ package ru.kata.spring.boot_security.demo.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.entity.Role;
 import ru.kata.spring.boot_security.demo.entity.User;
-import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import java.security.Principal;
@@ -18,12 +16,10 @@ import java.util.List;
 public class RESTController {
 
     private final UserService userService;
-    private final RoleRepository roleRepository;
 
     @Autowired
-    public RESTController(UserService userService, RoleRepository roleRepository) {
+    public RESTController(UserService userService) {
         this.userService = userService;
-        this.roleRepository = roleRepository;
     }
 
     @GetMapping("/users")
@@ -43,11 +39,8 @@ public class RESTController {
 
     @PutMapping("/users")
     public ResponseEntity<User> updateUser(@RequestBody User user) {
-        User updatedUser = userService.update(user);
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.ok(userService.update(user));
     }
-
-
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
@@ -56,15 +49,13 @@ public class RESTController {
     }
 
     @GetMapping("/roles")
-    public ResponseEntity<List<Role>> allRoles() {
-        return ResponseEntity.ok(roleRepository.findAll());
+    public ResponseEntity<List<Role>> findAllRoles() {
+        return ResponseEntity.ok(userService.findAllRoles());
     }
 
     @GetMapping("/user")
     public ResponseEntity<User> getCurrentUser(Principal principal) {
-        String email = principal.getName();
-        User currentUser = userService.findByUsername(email);
-        return ResponseEntity.ok(currentUser);
+        return ResponseEntity.ok(userService.findByUsername(principal.getName()));
     }
 
 }

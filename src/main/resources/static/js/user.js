@@ -1,36 +1,37 @@
-const currentUserUrl = '/api/user';
-const currentUserEmail = document.getElementById('currentUserEmail');
-const currentUserRoles = document.getElementById('currentUserRoles');
+const currentUserUrlUserPage = '/api/user';
 const userInfoTableBody = document.querySelector('#userInfoTable tbody');
+const currentUserEmailUserPage = document.getElementById('currentUserEmail');
+const currentUserRolesUserPage = document.getElementById('currentUserRoles');
 
-async function getCurrentUser() {
+async function loadCurrentUserInfo() {
     try {
-        const response = await fetch(currentUserUrl);
+        const response = await fetch(currentUserUrlUserPage);
         const user = await response.json();
-        currentUserEmail.textContent = user.email;
+        currentUserEmailUserPage.textContent = user.email;
+        currentUserRolesUserPage.innerHTML = '';
         user.roles.forEach(role => {
             const roleName = role.name.replace('ROLE_', '');
             const span = document.createElement('span');
             span.classList.add('badge', 'bg-secondary', 'me-1');
             span.textContent = roleName;
-            currentUserRoles.appendChild(span);
+            currentUserRolesUserPage.appendChild(span);
         });
 
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${user.id}</td>
-            <td>${user.name}</td>
-            <td>${user.surname}</td>
-            <td>${user.age}</td>
-            <td>${user.email}</td>
-            <td>${user.roles.map(role => role.name.replace('ROLE_', '')).join(', ')}</td>
+        userInfoTableBody.innerHTML = `
+            <tr>
+                <td>${user.id}</td>
+                <td>${user.name}</td>
+                <td>${user.surname}</td>
+                <td>${user.age}</td>
+                <td>${user.email}</td>
+                <td>${user.roles.map(r => r.name.replace('ROLE_', '')).join(', ')}</td>
+            </tr>
         `;
-        userInfoTableBody.appendChild(tr);
     } catch (error) {
-        console.error('Error fetching current user:', error);
+        console.error('Error fetching current user for user-page:', error);
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    getCurrentUser();
+    loadCurrentUserInfo();
 });

@@ -10,11 +10,20 @@ const modalsContainer = document.getElementById('modalsContainer');
 const currentUserEmail = document.getElementById('currentUserEmail');
 const currentUserRoles = document.getElementById('currentUserRoles');
 
+const adminLink = document.getElementById('adminLink');
+const userLink = document.getElementById('userLink');
+
+const adminSection = document.getElementById('adminSection');
+const userSection = document.getElementById('userSection');
+
+const adminInfoTableBody = document.querySelector('#adminInfoTable tbody');
+
 async function getCurrentUser() {
     try {
         const response = await fetch(currentUserUrl);
         const user = await response.json();
         currentUserEmail.textContent = user.email;
+        currentUserRoles.innerHTML = '';
         user.roles.forEach(role => {
             const roleName = role.name.replace('ROLE_', '');
             const span = document.createElement('span');
@@ -22,6 +31,7 @@ async function getCurrentUser() {
             span.textContent = roleName;
             currentUserRoles.appendChild(span);
         });
+        return user;
     } catch (error) {
         console.error('Error fetching current user:', error);
     }
@@ -71,7 +81,6 @@ async function loadRoles(selectElement) {
     }
 }
 
-// Create Edit User Modal
 function createEditModal(user) {
     const modal = document.createElement('div');
     modal.classList.add('modal', 'fade');
@@ -110,7 +119,7 @@ function createEditModal(user) {
                     <div class="mb-3">
                         <label for="editRoles${user.id}">Roles</label>
                         <select multiple id="editRoles${user.id}" name="roles" class="form-select">
-                            <!-- Roles will be dynamically inserted here -->
+                            <!-- Roles will be loaded dynamically -->
                         </select>
                     </div>
                 </div>
@@ -144,13 +153,12 @@ function createEditModal(user) {
             surname: formData.get('surname'),
             age: formData.get('age'),
             email: formData.get('email'),
-            password: formData.get('password'), // Пустое поле передаётся как null
+            password: formData.get('password') || null,
             roles: Array.from(rolesSelect.selectedOptions).map(option => ({
                 id: parseInt(option.value),
                 name: `ROLE_${option.textContent}`
             }))
         };
-
 
         if (!updatedUser.password) {
             delete updatedUser.password;
@@ -177,9 +185,10 @@ function createEditModal(user) {
 }
 
 function createDeleteModal(user) {
+    const modalId = `deleteUserModal${user.id}`;
     const modal = document.createElement('div');
     modal.classList.add('modal', 'fade');
-    modal.id = `deleteUserModal${user.id}`;
+    modal.id = modalId;
     modal.tabIndex = -1;
     modal.innerHTML = `
     <div class="modal-dialog">
@@ -190,12 +199,34 @@ function createDeleteModal(user) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete this user?</p>
-                    <p><strong>ID:</strong> ${user.id}</p>
-                    <p><strong>Name:</strong> ${user.name}</p>
-                    <p><strong>Surname:</strong> ${user.surname}</p>
-                    <p><strong>Email:</strong> ${user.email}</p>
-                    <p><strong>Roles:</strong> ${user.roles.map(role => role.name.replace('ROLE_', '')).join(', ')}</p>
+                    <input type="hidden" name="id" value="${user.id}" />
+                    <div class="mb-3">
+                        <label><strong>ID:</strong></label>
+                        <input type="text" class="form-control" value="${user.id}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label><strong>First Name:</strong></label>
+                        <input type="text" class="form-control" value="${user.name}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label><strong>Last Name:</strong></label>
+                        <input type="text" class="form-control" value="${user.surname}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label><strong>Age:</strong></label>
+                        <input type="text" class="form-control" value="${user.age}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label><strong>Email:</strong></label>
+                        <input type="email" class="form-control" value="${user.email}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label><strong>Roles:</strong></label>
+                        <select class="form-select" multiple disabled>
+                            ${user.roles.map(role => `<option selected>${role.name.replace('ROLE_', '')}</option>`).join('')}
+                        </select>
+                    </div>
+                    <p class="text-danger">Are you sure you want to delete this user?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -215,8 +246,12 @@ function createDeleteModal(user) {
                 method: 'DELETE',
             });
             if (response.ok) {
-                bootstrap.Modal.getInstance(modal).hide();
-                loadUsers();
+                const modalEl = document.getElementById(modalId);
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+                await loadUsers();
             } else {
                 console.error('Failed to delete user');
             }
@@ -224,6 +259,41 @@ function createDeleteModal(user) {
             console.error('Error deleting user:', error);
         }
     });
+}
+adminLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    adminLink.classList.add('active');
+    userLink.classList.remove('active');
+    adminSection.style.display = 'block';
+    userSection.style.display = 'none';
+});
+
+userLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+    userLink.classList.add('active');
+    adminLink.classList.remove('active');
+    adminSection.style.display = 'none';
+    userSection.style.display = 'block';
+    await loadAdminInfo();
+});
+
+async function loadAdminInfo() {
+    try {
+        const response = await fetch(currentUserUrl);
+        const admin = await response.json();
+        adminInfoTableBody.innerHTML = `
+            <tr>
+                <td>${admin.id}</td>
+                <td>${admin.name}</td>
+                <td>${admin.surname}</td>
+                <td>${admin.age}</td>
+                <td>${admin.email}</td>
+                <td>${admin.roles.map(role => role.name.replace('ROLE_', '')).join(', ')}</td>
+            </tr>
+        `;
+    } catch (error) {
+        console.error('Error fetching admin info:', error);
+    }
 }
 
 newUserForm.addEventListener('submit', async (event) => {
@@ -241,9 +311,7 @@ newUserForm.addEventListener('submit', async (event) => {
     try {
         const response = await fetch(usersUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newUser),
         });
         if (response.ok) {
