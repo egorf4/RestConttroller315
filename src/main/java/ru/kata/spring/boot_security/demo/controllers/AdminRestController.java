@@ -8,17 +8,16 @@ import ru.kata.spring.boot_security.demo.entity.Role;
 import ru.kata.spring.boot_security.demo.entity.User;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
-public class MyRestController {
+@RequestMapping("/api/admin")
+public class AdminRestController {
 
     private final UserService userService;
 
     @Autowired
-    public MyRestController(UserService userService) {
+    public AdminRestController(UserService userService) {
         this.userService = userService;
     }
 
@@ -52,10 +51,4 @@ public class MyRestController {
     public ResponseEntity<List<Role>> findAllRoles() {
         return ResponseEntity.ok(userService.findAllRoles());
     }
-
-    @GetMapping("/user")
-    public ResponseEntity<User> getCurrentUser(Principal principal) {
-        return ResponseEntity.ok(userService.findByUsername(principal.getName()));
-    }
-
 }
