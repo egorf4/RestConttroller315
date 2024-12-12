@@ -25,7 +25,7 @@ public class UserRestController {
         return new ModelAndView("user-page");
     }
 
-    @GetMapping("/api")
+    @GetMapping("/current")
     public ResponseEntity<User> getCurrentUser(Principal principal) {
         return ResponseEntity.ok(userService.findByUsername(principal.getName()));
     }

@@ -1,8 +1,11 @@
-const adminApiBaseUrl = '/admin/api';
-const userApiBaseUrl = '/user/api';
-const usersUrl = `${adminApiBaseUrl}/users`;
-const rolesUrl = `${adminApiBaseUrl}/roles`;
-const currentUserUrl = `${userApiBaseUrl}`;
+const getAllUsersUrl = '/admin/get-all';
+const getRolesUrl = '/admin/roles';
+const createUserUrl = '/admin/create';
+const updateUserUrl = '/admin/update';
+const deleteUserUrl = '/admin/delete';
+
+const userApiBaseUrl = '/user';
+const currentUserUrl = `${userApiBaseUrl}/current`;
 
 const usersTableBody = document.querySelector('#usersTable tbody');
 const newUserForm = document.getElementById('newUserForm');
@@ -41,10 +44,9 @@ async function getCurrentUser() {
     }
 }
 
-
 async function loadUsers() {
     try {
-        const response = await fetch(usersUrl);
+        const response = await fetch(getAllUsersUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -73,10 +75,9 @@ async function loadUsers() {
     }
 }
 
-
 async function loadRoles(selectElement) {
     try {
-        const response = await fetch(rolesUrl);
+        const response = await fetch(getRolesUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -92,7 +93,6 @@ async function loadRoles(selectElement) {
         console.error('Error fetching roles:', error);
     }
 }
-
 
 function createEditModal(user) {
     const modal = document.createElement('div');
@@ -178,7 +178,7 @@ function createEditModal(user) {
         }
 
         try {
-            const response = await fetch(usersUrl, {
+            const response = await fetch(updateUserUrl, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -255,7 +255,7 @@ function createDeleteModal(user) {
     deleteForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         try {
-            const response = await fetch(`${usersUrl}/${user.id}`, {
+            const response = await fetch(`${deleteUserUrl}/${user.id}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
@@ -273,6 +273,7 @@ function createDeleteModal(user) {
         }
     });
 }
+
 adminLink.addEventListener('click', (e) => {
     e.preventDefault();
     adminLink.classList.add('active');
@@ -322,7 +323,7 @@ newUserForm.addEventListener('submit', async (event) => {
     };
 
     try {
-        const response = await fetch(usersUrl, {
+        const response = await fetch(createUserUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newUser),

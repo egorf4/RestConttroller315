@@ -1,11 +1,12 @@
-const currentUserUrlUserPage = '/user/api';
+const userApiBaseUrl = '/user';
+const currentUserUrl = `${userApiBaseUrl}/current`;
 const userInfoTableBody = document.querySelector('#userInfoTable tbody');
 const currentUserEmailUserPage = document.getElementById('currentUserEmail');
 const currentUserRolesUserPage = document.getElementById('currentUserRoles');
 
 async function loadCurrentUserInfo() {
     try {
-        const response = await fetch(currentUserUrlUserPage);
+        const response = await fetch(currentUserUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

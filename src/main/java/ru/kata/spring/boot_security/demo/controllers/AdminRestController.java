@@ -27,27 +27,27 @@ public class AdminRestController {
         return new ModelAndView("admin");
     }
 
-    @GetMapping("/api/users")
-    public ResponseEntity<List<User>> showAllUsers() {
+    @GetMapping("/get-all")
+    public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.findAll());
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/get/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.findById(id));
     }
 
-    @PostMapping("/users")
+    @PostMapping("/create")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         return ResponseEntity.ok(userService.save(user));
     }
 
-    @PutMapping("/users")
+    @PutMapping("/update")
     public ResponseEntity<User> updateUser(@RequestBody User user) {
         return ResponseEntity.ok(userService.update(user));
     }
 
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);
