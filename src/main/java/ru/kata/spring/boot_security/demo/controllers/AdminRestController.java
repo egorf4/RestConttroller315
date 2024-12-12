@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import ru.kata.spring.boot_security.demo.entity.Role;
 import ru.kata.spring.boot_security.demo.entity.User;
 import ru.kata.spring.boot_security.demo.services.UserService;
@@ -11,7 +12,7 @@ import ru.kata.spring.boot_security.demo.services.UserService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/admin")
 public class AdminRestController {
 
     private final UserService userService;
@@ -21,7 +22,12 @@ public class AdminRestController {
         this.userService = userService;
     }
 
-    @GetMapping("/users")
+    @GetMapping
+    public ModelAndView showAdminPage() {
+        return new ModelAndView("admin");
+    }
+
+    @GetMapping("/api/users")
     public ResponseEntity<List<User>> showAllUsers() {
         return ResponseEntity.ok(userService.findAll());
     }

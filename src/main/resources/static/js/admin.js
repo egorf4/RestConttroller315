@@ -1,7 +1,8 @@
-const apiUrl = '/api';
-const usersUrl = `${apiUrl}/users`;
-const rolesUrl = `${apiUrl}/roles`;
-const currentUserUrl = `${apiUrl}/user`;
+const adminApiBaseUrl = '/admin/api';
+const userApiBaseUrl = '/user/api';
+const usersUrl = `${adminApiBaseUrl}/users`;
+const rolesUrl = `${adminApiBaseUrl}/roles`;
+const currentUserUrl = `${userApiBaseUrl}`;
 
 const usersTableBody = document.querySelector('#usersTable tbody');
 const newUserForm = document.getElementById('newUserForm');
@@ -21,6 +22,9 @@ const adminInfoTableBody = document.querySelector('#adminInfoTable tbody');
 async function getCurrentUser() {
     try {
         const response = await fetch(currentUserUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const user = await response.json();
         currentUserEmail.textContent = user.email;
         currentUserRoles.innerHTML = '';
@@ -37,9 +41,13 @@ async function getCurrentUser() {
     }
 }
 
+
 async function loadUsers() {
     try {
         const response = await fetch(usersUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const users = await response.json();
         usersTableBody.innerHTML = '';
         users.forEach(user => {
@@ -65,9 +73,13 @@ async function loadUsers() {
     }
 }
 
+
 async function loadRoles(selectElement) {
     try {
         const response = await fetch(rolesUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const roles = await response.json();
         selectElement.innerHTML = '';
         roles.forEach(role => {
@@ -80,6 +92,7 @@ async function loadRoles(selectElement) {
         console.error('Error fetching roles:', error);
     }
 }
+
 
 function createEditModal(user) {
     const modal = document.createElement('div');

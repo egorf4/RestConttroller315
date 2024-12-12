@@ -1,4 +1,4 @@
-const currentUserUrlUserPage = '/api/user';
+const currentUserUrlUserPage = '/user/api';
 const userInfoTableBody = document.querySelector('#userInfoTable tbody');
 const currentUserEmailUserPage = document.getElementById('currentUserEmail');
 const currentUserRolesUserPage = document.getElementById('currentUserRoles');
@@ -6,6 +6,9 @@ const currentUserRolesUserPage = document.getElementById('currentUserRoles');
 async function loadCurrentUserInfo() {
     try {
         const response = await fetch(currentUserUrlUserPage);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const user = await response.json();
         currentUserEmailUserPage.textContent = user.email;
         currentUserRolesUserPage.innerHTML = '';
